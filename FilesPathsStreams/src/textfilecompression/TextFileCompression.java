@@ -2,9 +2,9 @@ package textfilecompression;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import fileUtils.FileUtils;
 
@@ -42,10 +42,7 @@ public class TextFileCompression {
 		compressed = compressed.substring(0, compressed.length() - 1) + ".";
 		compressed = wordNumbers.toString().substring(1,
 				wordNumbers.toString().length() - 1)
-				+ pipe + compressed;
-
-//		Path comprPath = Paths.get(String.format("%s%s", filePath.toString(),
-//				extensionCompr));
+				+ pipe + " " + compressed;
 
 		try {
 			FileUtils.writeTo(filePath, compressed);
@@ -71,32 +68,27 @@ public class TextFileCompression {
 			toDeCompress = toDeCompress.substring(0, toDeCompress.length() - 1);
 		}
 
+		String[] parts = toDeCompress.split(Pattern.quote(pipe));
+		
 		ArrayList<String> wordNumbers = new ArrayList<>(
-				Arrays.asList(toDeCompress.split(pipe)[0].split(", ")));
+				Arrays.asList(parts[0].split(Pattern.quote(", "))));
 
-		String[] wordInts = toDeCompress.split(pipe)[1].split(prepender + " ");
+		String[] wordInts = parts[1].split(Pattern.quote(" " + prepender));
 
 		for (String number : wordInts) {
-			deCompressed += String.format("%s%s",
-					wordNumbers.get(Integer.parseInt(number)), " ");
+			if (!number.equals("")) {
+				deCompressed += String.format("%s%s",
+						wordNumbers.get(Integer.parseInt(number)), " ");				
+			}
 		}
 		
 		deCompressed = deCompressed.substring(0, deCompressed.length() - 1) + ".";
-		
-//		Path comprPath = Paths.get(String.format("%s%s", filePath.toString(),
-//				extensionCompr));
 
 		try {
 			FileUtils.writeTo(filePath, deCompressed);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static void main(String[] args) {
-		Path path = Paths.get("/home/stoilov/Ivan/subtitle_fix/test.txt");
-//		compress(path);
-		decompress(path);
 	}
 
 }
